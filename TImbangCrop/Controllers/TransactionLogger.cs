@@ -4,8 +4,7 @@ using System.Text;
 
 namespace TimbangCrop.Controllers
 {
-    public interface ILogAuditor
+    internal class TransactionLogger
     {
-        void LogTransaction(string idTimbangan, string status, string pesanDetail);
     }
 }

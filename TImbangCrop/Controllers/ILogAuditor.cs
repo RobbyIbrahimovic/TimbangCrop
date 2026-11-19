@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TimbangCrop.Data
+namespace TimbangCrop.Controllers
 {
-    internal class DatabaseHelper
+    internal class ILogAuditor
     {
     }
 }
