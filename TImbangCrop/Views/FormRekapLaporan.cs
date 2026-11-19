@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
+using System.Text;
 using System.Windows.Forms;
 
 namespace TimbangCrop.Views
@@ -230,6 +232,7 @@ namespace TimbangCrop.Views
             btnExportCSV.TabIndex = 4;
             btnExportCSV.Text = "EXPORT REKAP (.CSV)";
             btnExportCSV.UseVisualStyleBackColor = false;
+            btnExportCSV.Click += btnExportCSV_Click;
             // 
             // btnCetakPDF
             // 
@@ -244,6 +247,7 @@ namespace TimbangCrop.Views
             btnCetakPDF.TabIndex = 5;
             btnCetakPDF.Text = "CETAK BERITA ACARA";
             btnCetakPDF.UseVisualStyleBackColor = false;
+            btnCetakPDF.Click += btnCetakPDF_Click;
             // 
             // FormRekapLaporan
             // 
@@ -267,9 +271,35 @@ namespace TimbangCrop.Views
             ResumeLayout(false);
         }
 
+        private void btnExportCSV_Click(object sender, EventArgs e)
+        {
+            using SaveFileDialog sfd = new SaveFileDialog
+            {
+                Filter = "CSV File (*.csv)|*.csv",
+                FileName = $"Rekap_TimbangCrop_{DateTime.Now:yyyyMMdd}.csv"
+            };
+
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("Komoditas,Jumlah Trip,Total Berat SJ,Total Berat Netto,Akumulasi Susut");
+                foreach (DataGridViewRow row in dgvRekapKomoditas.Rows)
+                {
+                    sb.AppendLine($"\"{row.Cells[0].Value}\",\"{row.Cells[1].Value}\",\"{row.Cells[2].Value}\",\"{row.Cells[3].Value}\",\"{row.Cells[4].Value}\"");
+                }
+                File.WriteAllText(sfd.FileName, sb.ToString());
+                MessageBox.Show("Rekap berhasil diekspor ke CSV!", "Export Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void btnCetakPDF_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Berita Acara Penerimaan Panen siap dicetak.\nTotal Netto: " + lblValNetto.Text,
+                "Berita Acara TimbangCrop", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
         private void dgvRekapKomoditas_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-
         }
     }
 }

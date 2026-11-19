@@ -1,13 +1,14 @@
-using TImbangCropTest;
-
-namespace TimbangCrop;
-
-internal static class Program
-{
-    [STAThread]
-    static void Main()
-    {
-        ApplicationConfiguration.Initialize();
-        Application.Run(new FormLogin());
-    }
+using System;
+using System.Windows.Forms;
+using TimbangCrop.Views;
+namespace TimbangCrop 
+{ 
+    static class Program 
+    { [STAThread] 
+        static void Main() 
+        { Application.EnableVisualStyles(); 
+            Application.SetCompatibleTextRenderingDefault(false); 
+            Application.Run(new FormLogin()); 
+        } 
+    } 
 }

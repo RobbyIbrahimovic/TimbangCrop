@@ -4,7 +4,13 @@ using System.Text;
 
 namespace TimbangCrop.Models
 {
-    internal class PenerimaanBarang
+    public class PenerimaanBarang
     {
+        public string IdPenerimaan { get; set; }
+        public string NoSuratJalan { get; set; }
+        public string IdKomoditas { get; set; }
+        public string NamaDriver { get; set; }
+        public double BeratSuratJalan { get; set; }
+        public DateTime Tanggal { get; set; } = DateTime.Now;
     }
 }

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TimbangCrop.Controllers;
+using TimbangCrop.Data;
+using TimbangCrop.Models;
 
-namespace TimbangCropTest
+namespace TimbangCrop.Views
 {
     public class FormPenimbangan : Form
     {
@@ -142,6 +145,7 @@ namespace TimbangCropTest
             cmbKomoditas.Name = "cmbKomoditas";
             cmbKomoditas.Size = new Size(225, 31);
             cmbKomoditas.TabIndex = 5;
+            cmbKomoditas.SelectedIndexChanged += (s, e) => HitungDanValidasi();
             // 
             // lblBeratSJ
             // 
@@ -162,6 +166,7 @@ namespace TimbangCropTest
             txtBeratSJ.Size = new Size(225, 31);
             txtBeratSJ.TabIndex = 7;
             txtBeratSJ.Text = "500";
+            txtBeratSJ.TextChanged += (s, e) => HitungDanValidasi();
             // 
             // gbTimbangFisik
             // 
@@ -219,6 +224,7 @@ namespace TimbangCropTest
             txtTara.Size = new Size(225, 31);
             txtTara.TabIndex = 3;
             txtTara.Text = "30";
+            txtTara.TextChanged += (s, e) => HitungDanValidasi();
             // 
             // pnlResultCard
             // 
@@ -318,19 +324,119 @@ namespace TimbangCropTest
             ResumeLayout(false);
         }
 
-        private void btnSimpan_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void FormPenimbangan_Load(object sender, EventArgs e)
         {
+            cmbKomoditas.SelectedIndex = 0;
+            HitungDanValidasi();
+        }
 
+        private double GetToleransiKomoditas()
+        {
+            return cmbKomoditas.SelectedIndex switch
+            {
+                0 => 2.0,
+                1 => 2.5,
+                2 => 3.0,
+                _ => 2.0
+            };
+        }
+
+        private void HitungDanValidasi()
+        {
+            if (!double.TryParse(txtBeratSJ.Text, out double beratSJ) ||
+                !double.TryParse(txtGross.Text, out double gross) ||
+                !double.TryParse(txtTara.Text, out double tara))
+            {
+                return;
+            }
+
+            if (gross < 0 || tara < 0) return;
+
+            var tempTimbang = new Penimbangan
+            {
+                BeratKotor = gross,
+                BeratTara = tara
+            };
+
+            lblNettoValue.Text = $"{tempTimbang.BeratNetto:F2} kg";
+
+            double toleransi = GetToleransiKomoditas();
+            IVerificationValidator validator = new PercentageToleranceValidator();
+            VerificationResult hasil = tempTimbang.EksekusiValidasi(validator, beratSJ, toleransi);
+
+            double selisih = tempTimbang.BeratNetto - beratSJ;
+
+            if (hasil.IsValid)
+            {
+                pnlAlertIndicator.BackColor = Color.FromArgb(216, 243, 220);
+                lblAlertStatus.ForeColor = Color.FromArgb(42, 157, 143);
+                lblAlertStatus.Text = "STATUS: AMAN (DALAM TOLERANSI)";
+                lblAlertDetail.Text = $"Selisih Berat: {selisih:+0.00;-0.00;0.00} kg (Deviasi: {hasil.PersentaseDeviasi:F2}%)\r\nBatas Toleransi: ±{toleransi:F1}%\r\n{hasil.Pesan}";
+            }
+            else
+            {
+                pnlAlertIndicator.BackColor = Color.FromArgb(255, 229, 229);
+                lblAlertStatus.ForeColor = Color.FromArgb(214, 40, 40);
+                lblAlertStatus.Text = "STATUS: ANOMALI (BUTUH APPROVAL)";
+                lblAlertDetail.Text = $"Selisih Berat: {selisih:+0.00;-0.00;0.00} kg (Deviasi: {hasil.PersentaseDeviasi:F2}%)\r\nMelebihi batas toleransi ±{toleransi:F1}%!\r\n{hasil.Pesan}";
+            }
         }
 
         private void txtGross_TextChanged(object sender, EventArgs e)
         {
+            HitungDanValidasi();
+        }
 
+        private void btnSimpan_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                double beratSJ = double.Parse(txtBeratSJ.Text);
+                double gross = double.Parse(txtGross.Text);
+                double tara = double.Parse(txtTara.Text);
+
+                string idPenerimaan = "PNR-" + DateTime.Now.Ticks.ToString().Substring(10);
+                string idTimbangan = "TRX-" + DateTime.Now.ToString("yyyyMMdd-HHmmss");
+                string idKomoditas = cmbKomoditas.SelectedIndex == 0 ? "KOM-001" : "KOM-002";
+
+                var penerimaan = new PenerimaanBarang
+                {
+                    IdPenerimaan = idPenerimaan,
+                    NoSuratJalan = txtNoSJ.Text.Trim(),
+                    NamaDriver = txtDriver.Text.Trim(),
+                    IdKomoditas = idKomoditas,
+                    BeratSuratJalan = beratSJ,
+                    Tanggal = DateTime.Now
+                };
+                PenimbanganDAO.SimpanPenerimaan(penerimaan);
+
+                var timbang = new Penimbangan
+                {
+                    IdTimbangan = idTimbangan,
+                    IdPenerimaan = idPenerimaan,
+                    BeratKotor = gross,
+                    BeratTara = tara
+                };
+                PenimbanganDAO.SimpanPenimbangan(timbang);
+
+                double toleransi = GetToleransiKomoditas();
+                IVerificationValidator validator = new PercentageToleranceValidator();
+                VerificationResult hasil = timbang.EksekusiValidasi(validator, beratSJ, toleransi);
+
+                string status = hasil.IsValid ? "AMAN" : "ANOMALI";
+
+                ILogAuditor logger = new TransactionLogger();
+                logger.LogTransaction(idTimbangan, status, $"{txtNoSJ.Text} | Netto: {timbang.BeratNetto:F2} kg | {hasil.Pesan}");
+
+                MessageBox.Show($"Log Penimbangan berhasil disimpan!\nID: {idTimbangan}\nStatus: {status}\n{hasil.Pesan}",
+                    "Berhasil", MessageBoxButtons.OK,
+                    hasil.IsValid ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal menyimpan penimbangan:\n" + ex.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

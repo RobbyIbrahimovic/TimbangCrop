@@ -173,6 +173,7 @@ namespace TimbangCrop.Views
             btnTambah.TabIndex = 8;
             btnTambah.Text = "+ TAMBAH KOMODITAS BARU";
             btnTambah.UseVisualStyleBackColor = false;
+            btnTambah.Click += btnTambah_Click;
             // 
             // btnUpdate
             // 
@@ -187,6 +188,7 @@ namespace TimbangCrop.Views
             btnUpdate.TabIndex = 9;
             btnUpdate.Text = "SIMPAN UBAH";
             btnUpdate.UseVisualStyleBackColor = false;
+            btnUpdate.Click += btnUpdate_Click;
             // 
             // btnHapus
             // 
@@ -201,6 +203,7 @@ namespace TimbangCrop.Views
             btnHapus.TabIndex = 10;
             btnHapus.Text = "HAPUS";
             btnHapus.UseVisualStyleBackColor = false;
+            btnHapus.Click += btnHapus_Click;
             // 
             // dgvKomoditas
             // 
@@ -226,8 +229,10 @@ namespace TimbangCrop.Views
             dgvKomoditas.RowHeadersVisible = false;
             dgvKomoditas.RowHeadersWidth = 51;
             dgvKomoditas.RowTemplate.Height = 36;
+            dgvKomoditas.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvKomoditas.Size = new Size(540, 487);
             dgvKomoditas.TabIndex = 1;
+            dgvKomoditas.CellClick += dgvKomoditas_CellClick;
             dgvKomoditas.CellContentClick += dgvKomoditas_CellContentClick;
             // 
             // colKode
@@ -276,9 +281,47 @@ namespace TimbangCrop.Views
             ResumeLayout(false);
         }
 
+        private void dgvKomoditas_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                var row = dgvKomoditas.Rows[e.RowIndex];
+                txtKode.Text = row.Cells["colKode"].Value?.ToString() ?? "";
+                txtNama.Text = row.Cells["colNama"].Value?.ToString() ?? "";
+                txtToleransi.Text = (row.Cells["colToleransi"].Value?.ToString() ?? "").Replace("%", "");
+                txtKeterangan.Text = row.Cells["colKet"].Value?.ToString() ?? "";
+            }
+        }
+
+        private void btnTambah_Click(object sender, EventArgs e)
+        {
+            dgvKomoditas.Rows.Add(txtKode.Text.Trim(), txtNama.Text.Trim(), txtToleransi.Text.Trim() + "%", txtKeterangan.Text.Trim());
+            MessageBox.Show("Komoditas baru berhasil ditambahkan!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            if (dgvKomoditas.CurrentRow != null)
+            {
+                dgvKomoditas.CurrentRow.Cells["colKode"].Value = txtKode.Text.Trim();
+                dgvKomoditas.CurrentRow.Cells["colNama"].Value = txtNama.Text.Trim();
+                dgvKomoditas.CurrentRow.Cells["colToleransi"].Value = txtToleransi.Text.Trim() + "%";
+                dgvKomoditas.CurrentRow.Cells["colKet"].Value = txtKeterangan.Text.Trim();
+                MessageBox.Show("Data komoditas diperbarui!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void btnHapus_Click(object sender, EventArgs e)
+        {
+            if (dgvKomoditas.CurrentRow != null)
+            {
+                dgvKomoditas.Rows.Remove(dgvKomoditas.CurrentRow);
+                MessageBox.Show("Komoditas dihapus!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
         private void dgvKomoditas_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-
         }
     }
 }

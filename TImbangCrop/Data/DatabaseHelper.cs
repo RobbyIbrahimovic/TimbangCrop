@@ -5,7 +5,13 @@ using Npgsql;
 
 namespace TimbangCrop.Data
 {
-    internal class DatabaseHelper
+    public class DatabaseHelper
     {
+        private static string connString = "Host=localhost;Port=5432;Database=timbangcrop_db;Username=postgres;Password=123";
+
+        public static NpgsqlConnection GetConnection()
+        {
+            return new NpgsqlConnection(connString);
+        }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TimbangCrop.Data;
+using TimbangCrop.Models;
 
 namespace TimbangCrop.Views
 {
@@ -97,7 +99,7 @@ namespace TimbangCrop.Views
             txtUsername.Name = "txtUsername";
             txtUsername.Size = new Size(330, 32);
             txtUsername.TabIndex = 3;
-            txtUsername.Text = "mandor_budi";
+            txtUsername.Text = "pekerja1";
             // 
             // lblPass
             // 
@@ -117,7 +119,7 @@ namespace TimbangCrop.Views
             txtPassword.PasswordChar = '●';
             txtPassword.Size = new Size(330, 32);
             txtPassword.TabIndex = 5;
-            txtPassword.Text = "123456";
+            txtPassword.Text = "123";
             // 
             // lblRole
             // 
@@ -162,6 +164,7 @@ namespace TimbangCrop.Views
             btnLogin.TabIndex = 9;
             btnLogin.Text = "MASUK KE SISTEM";
             btnLogin.UseVisualStyleBackColor = false;
+            btnLogin.Click += btnLogin_Click;
             // 
             // FormLogin
             // 
@@ -173,14 +176,68 @@ namespace TimbangCrop.Views
             Name = "FormLogin";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "TimbangCrop - Login Sistem Agroindustri";
+            Load += FormLogin_Load;
             pnlCard.ResumeLayout(false);
             pnlCard.PerformLayout();
             ResumeLayout(false);
         }
 
+        private void FormLogin_Load(object sender, EventArgs e)
+        {
+            cmbRole.SelectedIndex = 0;
+        }
+
+        private void btnLogin_Click(object sender, EventArgs e)
+        {
+            string username = txtUsername.Text.Trim();
+            string password = txtPassword.Text.Trim();
+            string selectedRole = cmbRole.SelectedItem?.ToString() ?? "";
+
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
+                lblError.Text = "* Username dan Password wajib diisi!";
+                return;
+            }
+
+            if (string.IsNullOrEmpty(selectedRole))
+            {
+                lblError.Text = "* Pilih peran terlebih dahulu!";
+                return;
+            }
+
+            try
+            {
+                User loggedInUser = UserDAO.Autentikasi(username, password);
+
+                if (loggedInUser == null)
+                {
+                    lblError.Text = "* Username atau Password salah!";
+                    return;
+                }
+
+                string actualRole = loggedInUser is Mandor ? "Mandor" : "Pekerja";
+                if (!actualRole.Equals(selectedRole, StringComparison.OrdinalIgnoreCase))
+                {
+                    lblError.Text = $"* Akun ini terdaftar sebagai {actualRole}, bukan {selectedRole}!";
+                    return;
+                }
+
+                AppCore.CurrentUser = loggedInUser;
+
+                FormMainShell mainShell = new FormMainShell();
+                mainShell.FormClosed += (s, args) => this.Show();
+                this.Hide();
+                mainShell.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal terhubung ke database PostgreSQL:\n" + ex.Message,
+                    "Error Koneksi Database", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void lblSubtitle_Click(object sender, EventArgs e)
         {
-
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TimbangCrop.Models;
 
 namespace TimbangCrop.Views
 {
@@ -23,6 +24,8 @@ namespace TimbangCrop.Views
         private Label lblPageTitle;
         private Panel pnlMain;
         private Label lblPlaceholder;
+
+        private Form _activeForm;
 
         public FormMainShell()
         {
@@ -129,6 +132,7 @@ namespace TimbangCrop.Views
             btnMenuPenerimaan.Text = "Input Penerimaan SJ";
             btnMenuPenerimaan.TextAlign = ContentAlignment.MiddleLeft;
             btnMenuPenerimaan.UseVisualStyleBackColor = false;
+            btnMenuPenerimaan.Click += btnMenuPenerimaan_Click;
             // 
             // btnMenuPenimbangan
             // 
@@ -162,6 +166,7 @@ namespace TimbangCrop.Views
             btnMenuRiwayat.Text = "Riwayat Log Timbang";
             btnMenuRiwayat.TextAlign = ContentAlignment.MiddleLeft;
             btnMenuRiwayat.UseVisualStyleBackColor = false;
+            btnMenuRiwayat.Click += btnMenuRiwayat_Click;
             // 
             // lblDividerMandor
             // 
@@ -188,6 +193,7 @@ namespace TimbangCrop.Views
             btnMenuMasterKomoditas.Text = "Master Data Komoditas";
             btnMenuMasterKomoditas.TextAlign = ContentAlignment.MiddleLeft;
             btnMenuMasterKomoditas.UseVisualStyleBackColor = false;
+            btnMenuMasterKomoditas.Click += btnMenuMasterKomoditas_Click;
             // 
             // btnMenuApproval
             // 
@@ -204,6 +210,7 @@ namespace TimbangCrop.Views
             btnMenuApproval.Text = "Approval Anomali";
             btnMenuApproval.TextAlign = ContentAlignment.MiddleLeft;
             btnMenuApproval.UseVisualStyleBackColor = false;
+            btnMenuApproval.Click += btnMenuApproval_Click;
             // 
             // btnMenuRekap
             // 
@@ -220,6 +227,7 @@ namespace TimbangCrop.Views
             btnMenuRekap.Text = "Rekap Laporan Panen";
             btnMenuRekap.TextAlign = ContentAlignment.MiddleLeft;
             btnMenuRekap.UseVisualStyleBackColor = false;
+            btnMenuRekap.Click += btnMenuRekap_Click;
             // 
             // btnLogout
             // 
@@ -234,6 +242,7 @@ namespace TimbangCrop.Views
             btnLogout.TabIndex = 9;
             btnLogout.Text = "Keluar / Logout";
             btnLogout.UseVisualStyleBackColor = false;
+            btnLogout.Click += btnLogout_Click;
             // 
             // pnlTopBar
             // 
@@ -288,6 +297,7 @@ namespace TimbangCrop.Views
             Name = "FormMainShell";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "TimbangCrop - Dashboard Utama";
+            Load += FormMainShell_Load;
             pnlSidebar.ResumeLayout(false);
             pnlProfile.ResumeLayout(false);
             pnlTopBar.ResumeLayout(false);
@@ -295,14 +305,101 @@ namespace TimbangCrop.Views
             ResumeLayout(false);
         }
 
+        private void FormMainShell_Load(object sender, EventArgs e)
+        {
+            User activeUser = AppCore.CurrentUser ?? new Mandor("USR-002", "Bima Mandor", "mandor1", "123");
+
+            lblUserName.Text = "User: " + activeUser.Nama;
+            lblUserRole.Text = "Role: " + (activeUser is Mandor ? "MANDOR" : "PEKERJA");
+
+            bool aksesMandor = activeUser.CanAccessModule("Approval");
+            lblDividerMandor.Visible = aksesMandor;
+            btnMenuMasterKomoditas.Visible = aksesMandor;
+            btnMenuApproval.Visible = aksesMandor;
+            btnMenuRekap.Visible = aksesMandor;
+
+            OpenChildForm(new FormPenimbangan(), btnMenuPenimbangan, "Penimbangan & Validasi");
+        }
+
+        private void SetActiveMenu(Button activeButton)
+        {
+            Button[] menus = {
+                btnMenuPenerimaan,
+                btnMenuPenimbangan,
+                btnMenuRiwayat,
+                btnMenuMasterKomoditas,
+                btnMenuApproval,
+                btnMenuRekap
+            };
+
+            foreach (var btn in menus)
+            {
+                btn.BackColor = Color.FromArgb(27, 67, 50);
+                btn.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
+            }
+
+            activeButton.BackColor = Color.FromArgb(45, 106, 79);
+            activeButton.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+        }
+
+        private void OpenChildForm(Form childForm, Button activeButton, string title)
+        {
+            if (_activeForm != null)
+            {
+                _activeForm.Close();
+            }
+
+            SetActiveMenu(activeButton);
+            lblPageTitle.Text = title;
+
+            _activeForm = childForm;
+            childForm.TopLevel = false;
+            childForm.FormBorderStyle = FormBorderStyle.None;
+            childForm.Dock = DockStyle.Fill;
+
+            pnlMain.Controls.Clear();
+            pnlMain.Controls.Add(childForm);
+            childForm.Show();
+        }
+
+        private void btnMenuPenerimaan_Click(object sender, EventArgs e)
+        {
+            OpenChildForm(new FormInputPenerimaan(), btnMenuPenerimaan, "Input Penerimaan Surat Jalan");
+        }
+
         private void btnMenuPenimbangan_Click(object sender, EventArgs e)
         {
+            OpenChildForm(new FormPenimbangan(), btnMenuPenimbangan, "Penimbangan & Validasi");
+        }
 
+        private void btnMenuRiwayat_Click(object sender, EventArgs e)
+        {
+            OpenChildForm(new FormRiwayatLog(), btnMenuRiwayat, "Riwayat Log Penimbangan");
+        }
+
+        private void btnMenuMasterKomoditas_Click(object sender, EventArgs e)
+        {
+            OpenChildForm(new FormMasterKomoditas(), btnMenuMasterKomoditas, "Master Data Komoditas");
+        }
+
+        private void btnMenuApproval_Click(object sender, EventArgs e)
+        {
+            OpenChildForm(new FormApprovalMandor(), btnMenuApproval, "Approval Anomali");
+        }
+
+        private void btnMenuRekap_Click(object sender, EventArgs e)
+        {
+            OpenChildForm(new FormRekapLaporan(), btnMenuRekap, "Rekapitulasi Laporan Panen");
+        }
+
+        private void btnLogout_Click(object sender, EventArgs e)
+        {
+            AppCore.CurrentUser = null;
+            this.Close();
         }
 
         private void lblPlaceholder_Click(object sender, EventArgs e)
         {
-
         }
     }
 }

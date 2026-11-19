@@ -4,7 +4,11 @@ using System.Text;
 
 namespace TimbangCrop.Models
 {
-    internal class VerificationResult
-    {
+    public class VerificationResult
+{
+    public bool IsValid { get; set; }
+    public double DeviasiKg { get; set; }
+    public double PersentaseDeviasi { get; set; }
+    public string Pesan { get; set; }
     }
 }

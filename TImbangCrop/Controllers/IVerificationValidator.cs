@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TimbangCrop.Models;
 
 namespace TimbangCrop.Controllers
 {
-    internal class IVerificationValidator
+    public interface IVerificationValidator
     {
+        VerificationResult ValidateWeight(double beratSuratJalan, double beratNettoRiil, double batasToleransiPersen);
     }
 }

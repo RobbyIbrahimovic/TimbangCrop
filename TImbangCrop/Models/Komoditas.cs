@@ -4,7 +4,10 @@ using System.Text;
 
 namespace TimbangCrop.Models
 {
-    internal class Komoditas
+    public class Komoditas
     {
+        public string IdKomoditas { get; set; }
+        public string NamaKomoditas { get; set; }
+        public double ToleransiPersen { get; set; }
     }
 }
