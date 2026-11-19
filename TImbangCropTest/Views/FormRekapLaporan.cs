@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace TimbangCropTest
+namespace TimbangCrop.Views
 {
     public class FormRekapLaporan : Form
     {
@@ -34,6 +34,7 @@ namespace TimbangCropTest
 
         private void InitializeComponent()
         {
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             pnlCardTotalNetto = new Panel();
             lblTitleNetto = new Label();
             lblValNetto = new Label();
@@ -56,74 +57,114 @@ namespace TimbangCropTest
             pnlCardAnomali.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvRekapKomoditas).BeginInit();
             SuspendLayout();
-
+            // 
+            // pnlCardTotalNetto
+            // 
             pnlCardTotalNetto.BackColor = Color.White;
             pnlCardTotalNetto.Controls.Add(lblTitleNetto);
             pnlCardTotalNetto.Controls.Add(lblValNetto);
             pnlCardTotalNetto.Location = new Point(20, 20);
             pnlCardTotalNetto.Name = "pnlCardTotalNetto";
             pnlCardTotalNetto.Size = new Size(295, 115);
-
+            pnlCardTotalNetto.TabIndex = 0;
+            // 
+            // lblTitleNetto
+            // 
             lblTitleNetto.AutoSize = true;
             lblTitleNetto.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             lblTitleNetto.ForeColor = Color.FromArgb(108, 117, 125);
             lblTitleNetto.Location = new Point(18, 16);
             lblTitleNetto.Name = "lblTitleNetto";
+            lblTitleNetto.Size = new Size(210, 20);
+            lblTitleNetto.TabIndex = 0;
             lblTitleNetto.Text = "TOTAL PENERIMAAN NETTO";
-
+            // 
+            // lblValNetto
+            // 
             lblValNetto.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
             lblValNetto.ForeColor = Color.FromArgb(27, 67, 50);
             lblValNetto.Location = new Point(16, 48);
             lblValNetto.Name = "lblValNetto";
             lblValNetto.Size = new Size(265, 45);
+            lblValNetto.TabIndex = 1;
             lblValNetto.Text = "11,599.00 kg";
-
+            // 
+            // pnlCardTotalSJ
+            // 
             pnlCardTotalSJ.BackColor = Color.White;
             pnlCardTotalSJ.Controls.Add(lblTitleSJ);
             pnlCardTotalSJ.Controls.Add(lblValSJ);
             pnlCardTotalSJ.Location = new Point(332, 20);
             pnlCardTotalSJ.Name = "pnlCardTotalSJ";
             pnlCardTotalSJ.Size = new Size(295, 115);
-
+            pnlCardTotalSJ.TabIndex = 1;
+            // 
+            // lblTitleSJ
+            // 
             lblTitleSJ.AutoSize = true;
             lblTitleSJ.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             lblTitleSJ.ForeColor = Color.FromArgb(108, 117, 125);
             lblTitleSJ.Location = new Point(18, 16);
             lblTitleSJ.Name = "lblTitleSJ";
+            lblTitleSJ.Size = new Size(242, 20);
+            lblTitleSJ.TabIndex = 0;
             lblTitleSJ.Text = "TOTAL ARMADA / SURAT JALAN";
-
+            // 
+            // lblValSJ
+            // 
             lblValSJ.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
             lblValSJ.ForeColor = Color.FromArgb(45, 106, 79);
             lblValSJ.Location = new Point(16, 48);
             lblValSJ.Name = "lblValSJ";
             lblValSJ.Size = new Size(265, 45);
+            lblValSJ.TabIndex = 1;
             lblValSJ.Text = "27 Trip Masuk";
-
+            // 
+            // pnlCardAnomali
+            // 
             pnlCardAnomali.BackColor = Color.White;
             pnlCardAnomali.Controls.Add(lblTitleAnomali);
             pnlCardAnomali.Controls.Add(lblValAnomali);
             pnlCardAnomali.Location = new Point(645, 20);
             pnlCardAnomali.Name = "pnlCardAnomali";
             pnlCardAnomali.Size = new Size(295, 115);
-
+            pnlCardAnomali.TabIndex = 2;
+            // 
+            // lblTitleAnomali
+            // 
             lblTitleAnomali.AutoSize = true;
             lblTitleAnomali.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             lblTitleAnomali.ForeColor = Color.FromArgb(108, 117, 125);
             lblTitleAnomali.Location = new Point(18, 16);
             lblTitleAnomali.Name = "lblTitleAnomali";
+            lblTitleAnomali.Size = new Size(253, 20);
+            lblTitleAnomali.TabIndex = 0;
             lblTitleAnomali.Text = "TRANSAKSI ANOMALI TERTAHAN";
-
+            // 
+            // lblValAnomali
+            // 
             lblValAnomali.Font = new Font("Segoe UI", 22F, FontStyle.Bold);
             lblValAnomali.ForeColor = Color.FromArgb(214, 40, 40);
             lblValAnomali.Location = new Point(16, 48);
             lblValAnomali.Name = "lblValAnomali";
             lblValAnomali.Size = new Size(265, 45);
+            lblValAnomali.TabIndex = 1;
             lblValAnomali.Text = "2 Transaksi";
-
+            // 
+            // dgvRekapKomoditas
+            // 
             dgvRekapKomoditas.AllowUserToAddRows = false;
             dgvRekapKomoditas.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvRekapKomoditas.BackgroundColor = Color.White;
             dgvRekapKomoditas.BorderStyle = BorderStyle.None;
+            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = Color.FromArgb(27, 67, 50);
+            dataGridViewCellStyle1.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            dataGridViewCellStyle1.ForeColor = Color.White;
+            dataGridViewCellStyle1.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
+            dgvRekapKomoditas.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             dgvRekapKomoditas.ColumnHeadersHeight = 44;
             dgvRekapKomoditas.Columns.AddRange(new DataGridViewColumn[] { colKomoditas, colJumlahSJ, colTotalDokumen, colTotalNetto, colTotalSusut });
             dgvRekapKomoditas.EnableHeadersVisualStyles = false;
@@ -132,29 +173,52 @@ namespace TimbangCropTest
             dgvRekapKomoditas.Name = "dgvRekapKomoditas";
             dgvRekapKomoditas.ReadOnly = true;
             dgvRekapKomoditas.RowHeadersVisible = false;
+            dgvRekapKomoditas.RowHeadersWidth = 51;
             dgvRekapKomoditas.RowTemplate.Height = 38;
             dgvRekapKomoditas.Size = new Size(920, 295);
-
-            dgvRekapKomoditas.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(27, 67, 50);
-            dgvRekapKomoditas.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvRekapKomoditas.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-
+            dgvRekapKomoditas.TabIndex = 3;
+            dgvRekapKomoditas.CellContentClick += dgvRekapKomoditas_CellContentClick;
+            // 
+            // colKomoditas
+            // 
             colKomoditas.FillWeight = 140F;
             colKomoditas.HeaderText = "Komoditas";
+            colKomoditas.MinimumWidth = 6;
             colKomoditas.Name = "colKomoditas";
+            colKomoditas.ReadOnly = true;
+            // 
+            // colJumlahSJ
+            // 
             colJumlahSJ.FillWeight = 80F;
             colJumlahSJ.HeaderText = "Jumlah Trip";
+            colJumlahSJ.MinimumWidth = 6;
             colJumlahSJ.Name = "colJumlahSJ";
-            colTotalDokumen.FillWeight = 100F;
+            colJumlahSJ.ReadOnly = true;
+            // 
+            // colTotalDokumen
+            // 
             colTotalDokumen.HeaderText = "Total Berat SJ";
+            colTotalDokumen.MinimumWidth = 6;
             colTotalDokumen.Name = "colTotalDokumen";
-            colTotalNetto.FillWeight = 100F;
+            colTotalDokumen.ReadOnly = true;
+            // 
+            // colTotalNetto
+            // 
             colTotalNetto.HeaderText = "Total Berat Netto";
+            colTotalNetto.MinimumWidth = 6;
             colTotalNetto.Name = "colTotalNetto";
+            colTotalNetto.ReadOnly = true;
+            // 
+            // colTotalSusut
+            // 
             colTotalSusut.FillWeight = 120F;
             colTotalSusut.HeaderText = "Akumulasi Susut";
+            colTotalSusut.MinimumWidth = 6;
             colTotalSusut.Name = "colTotalSusut";
-
+            colTotalSusut.ReadOnly = true;
+            // 
+            // btnExportCSV
+            // 
             btnExportCSV.BackColor = Color.FromArgb(45, 106, 79);
             btnExportCSV.FlatAppearance.BorderSize = 0;
             btnExportCSV.FlatStyle = FlatStyle.Flat;
@@ -163,8 +227,12 @@ namespace TimbangCropTest
             btnExportCSV.Location = new Point(510, 470);
             btnExportCSV.Name = "btnExportCSV";
             btnExportCSV.Size = new Size(205, 42);
+            btnExportCSV.TabIndex = 4;
             btnExportCSV.Text = "EXPORT REKAP (.CSV)";
-
+            btnExportCSV.UseVisualStyleBackColor = false;
+            // 
+            // btnCetakPDF
+            // 
             btnCetakPDF.BackColor = Color.FromArgb(27, 67, 50);
             btnCetakPDF.FlatAppearance.BorderSize = 0;
             btnCetakPDF.FlatStyle = FlatStyle.Flat;
@@ -173,8 +241,12 @@ namespace TimbangCropTest
             btnCetakPDF.Location = new Point(735, 470);
             btnCetakPDF.Name = "btnCetakPDF";
             btnCetakPDF.Size = new Size(205, 42);
+            btnCetakPDF.TabIndex = 5;
             btnCetakPDF.Text = "CETAK BERITA ACARA";
-
+            btnCetakPDF.UseVisualStyleBackColor = false;
+            // 
+            // FormRekapLaporan
+            // 
             BackColor = Color.FromArgb(244, 247, 245);
             ClientSize = new Size(960, 535);
             Controls.Add(pnlCardTotalNetto);
@@ -193,6 +265,11 @@ namespace TimbangCropTest
             pnlCardAnomali.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvRekapKomoditas).EndInit();
             ResumeLayout(false);
+        }
+
+        private void dgvRekapKomoditas_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }

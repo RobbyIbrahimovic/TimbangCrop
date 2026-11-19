@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace TimbangCropTest
+namespace TimbangCrop.Views
 {
     public class FormLogin : Form
     {
