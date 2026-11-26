@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using TimbangCrop.Data;
+using TimbangCrop.Models;
 
 namespace TimbangCrop.Views
 {
@@ -15,6 +18,10 @@ namespace TimbangCrop.Views
         private ComboBox cmbFilterStatus = null!;
         private TextBox txtCari = null!;
         private Button btnCari = null!;
+        private CheckBox chkFilterTanggal = null!;
+        private DateTimePicker dtpDari = null!;
+        private Label lblSampai = null!;
+        private DateTimePicker dtpSampai = null!;
         private DataGridView dgvRiwayat = null!;
         private DataGridViewTextBoxColumn colId = null!;
         private DataGridViewTextBoxColumn colWaktu = null!;
@@ -23,6 +30,8 @@ namespace TimbangCrop.Views
         private DataGridViewTextBoxColumn colNetto = null!;
         private DataGridViewTextBoxColumn colDeviasi = null!;
         private DataGridViewTextBoxColumn colStatus = null!;
+
+        private List<LogPenimbangan> _semuaLog = new List<LogPenimbangan>();
 
         public FormRiwayatLog()
         {
@@ -42,6 +51,10 @@ namespace TimbangCrop.Views
             cmbFilterStatus = new ComboBox();
             txtCari = new TextBox();
             btnCari = new Button();
+            chkFilterTanggal = new CheckBox();
+            dtpDari = new DateTimePicker();
+            lblSampai = new Label();
+            dtpSampai = new DateTimePicker();
             dgvRiwayat = new DataGridView();
             colId = new DataGridViewTextBoxColumn();
             colWaktu = new DataGridViewTextBoxColumn();
@@ -63,9 +76,13 @@ namespace TimbangCrop.Views
             pnlFilter.Controls.Add(cmbFilterStatus);
             pnlFilter.Controls.Add(txtCari);
             pnlFilter.Controls.Add(btnCari);
+            pnlFilter.Controls.Add(chkFilterTanggal);
+            pnlFilter.Controls.Add(dtpDari);
+            pnlFilter.Controls.Add(lblSampai);
+            pnlFilter.Controls.Add(dtpSampai);
             pnlFilter.Location = new Point(20, 20);
             pnlFilter.Name = "pnlFilter";
-            pnlFilter.Size = new Size(920, 75);
+            pnlFilter.Size = new Size(920, 120);
             pnlFilter.TabIndex = 0;
             // 
             // lblFilterKomoditas
@@ -131,7 +148,51 @@ namespace TimbangCrop.Views
             btnCari.Text = "FILTER DATA";
             btnCari.UseVisualStyleBackColor = false;
             btnCari.Click += btnCari_Click;
-            // 
+            //
+            // chkFilterTanggal
+            //
+            chkFilterTanggal.AutoSize = true;
+            chkFilterTanggal.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            chkFilterTanggal.Location = new Point(20, 82);
+            chkFilterTanggal.Name = "chkFilterTanggal";
+            chkFilterTanggal.Size = new Size(130, 24);
+            chkFilterTanggal.TabIndex = 6;
+            chkFilterTanggal.Text = "Filter Tanggal:";
+            chkFilterTanggal.UseVisualStyleBackColor = true;
+            chkFilterTanggal.CheckedChanged += chkFilterTanggal_CheckedChanged;
+            //
+            // dtpDari
+            //
+            dtpDari.Enabled = false;
+            dtpDari.Font = new Font("Segoe UI", 9.5F);
+            dtpDari.Format = DateTimePickerFormat.Short;
+            dtpDari.Location = new Point(160, 80);
+            dtpDari.Name = "dtpDari";
+            dtpDari.Size = new Size(150, 29);
+            dtpDari.TabIndex = 7;
+            dtpDari.Value = DateTime.Today.AddDays(-30);
+            //
+            // lblSampai
+            //
+            lblSampai.AutoSize = true;
+            lblSampai.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblSampai.Location = new Point(320, 84);
+            lblSampai.Name = "lblSampai";
+            lblSampai.Size = new Size(30, 20);
+            lblSampai.TabIndex = 8;
+            lblSampai.Text = "s/d";
+            //
+            // dtpSampai
+            //
+            dtpSampai.Enabled = false;
+            dtpSampai.Font = new Font("Segoe UI", 9.5F);
+            dtpSampai.Format = DateTimePickerFormat.Short;
+            dtpSampai.Location = new Point(360, 80);
+            dtpSampai.Name = "dtpSampai";
+            dtpSampai.Size = new Size(150, 29);
+            dtpSampai.TabIndex = 9;
+            dtpSampai.Value = DateTime.Today;
+            //
             // dgvRiwayat
             // 
             dgvRiwayat.AllowUserToAddRows = false;
@@ -150,13 +211,13 @@ namespace TimbangCrop.Views
             dgvRiwayat.Columns.AddRange(new DataGridViewColumn[] { colId, colWaktu, colNoSJ, colKomoditas, colNetto, colDeviasi, colStatus });
             dgvRiwayat.EnableHeadersVisualStyles = false;
             dgvRiwayat.Font = new Font("Segoe UI", 9.5F);
-            dgvRiwayat.Location = new Point(20, 110);
+            dgvRiwayat.Location = new Point(20, 155);
             dgvRiwayat.Name = "dgvRiwayat";
             dgvRiwayat.ReadOnly = true;
             dgvRiwayat.RowHeadersVisible = false;
             dgvRiwayat.RowHeadersWidth = 51;
             dgvRiwayat.RowTemplate.Height = 35;
-            dgvRiwayat.Size = new Size(920, 405);
+            dgvRiwayat.Size = new Size(920, 360);
             dgvRiwayat.TabIndex = 1;
             dgvRiwayat.CellContentClick += dgvRiwayat_CellContentClick;
             // 
@@ -225,45 +286,100 @@ namespace TimbangCrop.Views
 
         private void LoadRiwayat()
         {
-            dgvRiwayat.Rows.Clear();
-            dgvRiwayat.Rows.Add("TRX-001", "15/11/2026 08:15", "SJ/MTR/1101", "Edamame Segar", "495.00 kg", "1.00%", "AMAN");
-            dgvRiwayat.Rows.Add("TRX-002", "15/11/2026 09:40", "SJ/MTR/1104", "Edamame Segar", "475.00 kg", "5.00%", "ANOMALI");
-            dgvRiwayat.Rows.Add("TRX-003", "15/11/2026 11:05", "SJ/MTR/1107", "Okra Hijau", "318.50 kg", "0.47%", "AMAN");
-
             try
             {
-                DataTable dt = PenimbanganDAO.GetRiwayatLog();
-                foreach (DataRow row in dt.Rows)
-                {
-                    string idTmb = row["id_timbangan"]?.ToString() ?? "-";
-                    string waktu = Convert.ToDateTime(row["timestamp"]).ToString("dd/MM/yyyy HH:mm");
-                    string status = row["status"]?.ToString() ?? "-";
-                    string detail = row["pesan_detail"]?.ToString() ?? "-";
-
-                    dgvRiwayat.Rows.Insert(0, idTmb, waktu, detail, "Hasil Timbang DB", "-", "-", status);
-                }
+                _semuaLog = LogPenimbanganDAO.GetRiwayat();
             }
-            catch
+            catch (Exception ex)
             {
-                // nampilin data awal kalo DB belum ada transaksi
+                _semuaLog = new List<LogPenimbangan>();
+                MessageBox.Show("Gagal memuat riwayat dari database:\n" + ex.Message,
+                    "Error Database", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            IsiFilterKomoditas();
+            TampilkanData();
+        }
+
+        private void IsiFilterKomoditas()
+        {
+            // Pilihan komoditas diambil dari data riwayat, supaya sama dengan nama di DB
+            cmbFilterKomoditas.Items.Clear();
+            cmbFilterKomoditas.Items.Add("Semua Komoditas");
+            foreach (string nama in _semuaLog
+                         .Select(l => l.NamaKomoditas)
+                         .Where(n => n != "-")
+                         .Distinct()
+                         .OrderBy(n => n))
+            {
+                cmbFilterKomoditas.Items.Add(nama);
+            }
+            cmbFilterKomoditas.SelectedIndex = 0;
+        }
+
+        private void TampilkanData()
+        {
+            string filterKomoditas = cmbFilterKomoditas.SelectedItem?.ToString() ?? "Semua Komoditas";
+            string filterStatus = cmbFilterStatus.SelectedItem?.ToString() ?? "Semua Status";
+            string keyword = txtCari.Text.Trim().ToLower();
+            DateTime dari = dtpDari.Value.Date;
+            DateTime sampai = dtpSampai.Value.Date;
+
+            IEnumerable<LogPenimbangan> data = _semuaLog;
+
+            if (filterKomoditas != "Semua Komoditas")
+                data = data.Where(l => l.NamaKomoditas == filterKomoditas);
+
+            if (filterStatus != "Semua Status")
+                data = data.Where(l => l.Status.Equals(filterStatus, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrEmpty(keyword))
+                data = data.Where(l => $"{l.IdTimbangan} {l.NoSuratJalan} {l.NamaKomoditas}".ToLower().Contains(keyword));
+
+            if (chkFilterTanggal.Checked)
+                data = data.Where(l => l.Timestamp.Date >= dari && l.Timestamp.Date <= sampai);
+
+            dgvRiwayat.Rows.Clear();
+            foreach (LogPenimbangan log in data)
+            {
+                int idx = dgvRiwayat.Rows.Add(
+                    log.IdTimbangan,
+                    log.Timestamp.ToString("dd/MM/yyyy HH:mm"),
+                    log.NoSuratJalan,
+                    log.NamaKomoditas,
+                    $"{log.BeratNetto:F2} kg",
+                    $"{log.PersentaseDeviasi:F2}%",
+                    log.Status);
+
+                WarnaiStatus(dgvRiwayat.Rows[idx].Cells["colStatus"], log.Status);
+            }
+        }
+
+        private void WarnaiStatus(DataGridViewCell cell, string status)
+        {
+            if (status.Equals("ANOMALI", StringComparison.OrdinalIgnoreCase) ||
+                status.Equals("REJECTED", StringComparison.OrdinalIgnoreCase))
+            {
+                cell.Style.BackColor = Color.FromArgb(255, 229, 229);
+                cell.Style.ForeColor = Color.FromArgb(214, 40, 40);
+            }
+            else if (status.Equals("AMAN", StringComparison.OrdinalIgnoreCase) ||
+                     status.Equals("APPROVED", StringComparison.OrdinalIgnoreCase))
+            {
+                cell.Style.BackColor = Color.FromArgb(216, 243, 220);
+                cell.Style.ForeColor = Color.FromArgb(42, 157, 143);
+            }
+        }
+
+        private void chkFilterTanggal_CheckedChanged(object sender, EventArgs e)
+        {
+            dtpDari.Enabled = chkFilterTanggal.Checked;
+            dtpSampai.Enabled = chkFilterTanggal.Checked;
         }
 
         private void btnCari_Click(object sender, EventArgs e)
         {
-            string filterStatus = cmbFilterStatus.SelectedItem?.ToString() ?? "Semua Status";
-            string keyword = txtCari.Text.Trim().ToLower();
-
-            foreach (DataGridViewRow row in dgvRiwayat.Rows)
-            {
-                string rowStatus = row.Cells["colStatus"].Value?.ToString() ?? "";
-                string rowText = $"{row.Cells["colId"].Value} {row.Cells["colNoSJ"].Value} {row.Cells["colKomoditas"].Value}".ToLower();
-
-                bool matchStatus = filterStatus == "Semua Status" || rowStatus.Equals(filterStatus, StringComparison.OrdinalIgnoreCase);
-                bool matchKeyword = string.IsNullOrEmpty(keyword) || rowText.Contains(keyword);
-
-                row.Visible = matchStatus && matchKeyword;
-            }
+            TampilkanData();
         }
 
         private void dgvRiwayat_CellContentClick(object sender, DataGridViewCellEventArgs e)
